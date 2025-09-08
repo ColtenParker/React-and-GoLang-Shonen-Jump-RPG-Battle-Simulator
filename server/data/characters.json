@@ -15,7 +15,7 @@
   {
     "id": "blade_tamer",
     "name": "Blade Tamer",
-    "element": "Nature",
+    "element": "Shadow",
     "role": "Attacker",
     "hp": 1100,
     "attack": 180,
@@ -28,7 +28,7 @@
   {
     "id": "sniper_ghost",
     "name": "Sniper Ghost",
-    "element": "Blaze",
+    "element": "Nature",
     "role": "Attacker",
     "hp": 1000,
     "attack": 160,
