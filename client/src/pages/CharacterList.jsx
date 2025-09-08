@@ -36,12 +36,11 @@ function CharacterList() {
 
   // return a container that maps characters -> <CharacterCard character={c} />
   return (
-      <div>
-          {characters.map(c => (
-              <CharacterCard key={c.id} character={c} />
-          ))}
-      </div>
-  );
+    <div style={{display:'grid',gap:'1rem',gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))'}}>
+        {characters.map(c => <CharacterCard key={c.id} character={c} />)}
+    </div>
+);
+
 }
 
 export default CharacterList
