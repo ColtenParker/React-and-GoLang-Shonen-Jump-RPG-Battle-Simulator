@@ -1,17 +1,22 @@
-import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import CharacterList from './pages/CharacterList'
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import NavBar from './components/NavBar';
+import CharacterList from './pages/CharacterList';
+import TeamBuilder from './pages/TeamBuilder';
+import BattleScreen from './pages/BattleScreen';
 
-function App() {
+export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/characters" replace />} />
-      <Route path="/characters" element={<CharacterList />} />
-      {/* future:
-          <Route path="/battle" element={<BattleScreen />} />
+    <>
+      <NavBar />
+      <div style={{padding:'1rem'}}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/characters" replace />} />
+          <Route path="/characters" element={<CharacterList />} />
           <Route path="/teams" element={<TeamBuilder />} />
-      */}
-    </Routes>
-  )
+          <Route path="/battle" element={<BattleScreen />} />
+        </Routes>
+      </div>
+    </>
+  );
 }
-export default App
