@@ -2,6 +2,8 @@ package main
 
 import (
 	"React-and-shonen-rpg-battle-simulator/server/api"
+	"React-and-shonen-rpg-battle-simulator/server/router"
+
 	// "React-and-shonen-rpg-battle-simulator/server/data"
 	// "fmt"
 	"context"
@@ -15,11 +17,13 @@ import (
 func main() {
 	// Set up Server
 	mux := http.NewServeMux()
-	mux.HandleFunc("/api/characters", api.GetCharactersHandler)
+	// Apply CORS middleware
+	handler := router.CORSMiddleware(mux)
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: mux,
+		Handler: handler,
 	}
+	mux.HandleFunc("/api/characters", api.GetCharactersHandler)
 	println("Server Running...")
 	go server.ListenAndServe()
 
