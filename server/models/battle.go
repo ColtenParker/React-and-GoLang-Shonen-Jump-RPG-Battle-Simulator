@@ -2,39 +2,38 @@
 package models
 
 type BattleRequest struct {
-	Player1ID string `json:"player1_id"`
-	Player2ID string `json:"player2_id"`
+	Player1ID string `json:"player1Id"`
+	Player2ID string `json:"player2Id"`
 }
 
 type BattleUnit struct {
-	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Element string `json:"element"`
-	Role    string `json:"role"`
-	HP      int    `json:"hp"`
-	Attack  int    `json:"attack"`
-	Defense int    `json:"defense"`
-	Speed   int    `json:"speed"`
-	CritRate    int    `json:"critRate"`
-	CritDamage  int    `json:"critDamage"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	Element    string `json:"element"`
+	Role       string `json:"role"`
+	HP         int    `json:"hp"`
+	Attack     int    `json:"attack"`
+	Defense    int    `json:"defense"`
+	Speed      int    `json:"speed"`
+	CritRate   int    `json:"critRate"`
+	CritDamage int    `json:"critDamage"`
 }
 
 type Turn struct {
-	AttackerID        string  `json:"attacker_id"`
-	DefenderID        string  `json:"defender_id"`
-	Damage            int     `json:"damage"`
+	TurnNumber        int     `json:"turnNumber"`
+	AttackerID        string  `json:"attackerId"`
+	DefenderID        string  `json:"defenderId"`
 	IsCrit            bool    `json:"critical"`
-	ElementMultiplier float64 `json:"element_multiplier"`
-	RawDamage         int     `json:"raw_damage"`
-	DefenderDefense   int     `json:"defender_defense"`
-	FinalDamage       int     `json:"final_damage"`
-	DefenderHPAfter   int     `json:"defender_hp_after"`
+	ElementMultiplier float64 `json:"elementMultiplier"`
+	RawDamage         int     `json:"rawDamage"`
+	DefenderDefense   int     `json:"defenderDefense"`
+	FinalDamage       int     `json:"finalDamage"`
+	DefenderHPAfter   int     `json:"defenderHPAfter"`
 }
-
 type BattleResult struct {
-	WinnerID   string     `json:"winner_id"`
-	LoserID    string     `json:"loser_id"`
-	Turns      []Turn     `json:"turns"`
-	Player1Unit BattleUnit `json:"player1_unit"`
-	Player2Unit BattleUnit `json:"player2_unit"`
+	WinnerID    string     `json:"winnerId"`
+	LoserID     string     `json:"loserId"`
+	Turns       []Turn     `json:"turns"`
+	Player1Unit BattleUnit `json:"player1Unit"`
+	Player2Unit BattleUnit `json:"player2Unit"`
 }

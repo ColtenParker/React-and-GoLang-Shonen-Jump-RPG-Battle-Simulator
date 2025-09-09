@@ -7,6 +7,7 @@ import (
 	// "React-and-shonen-rpg-battle-simulator/server/data"
 	// "fmt"
 	"context"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,16 +15,20 @@ import (
 	"time"
 )
 
+var rng = rand.New(rand.NewSource(time.Now().UnixNano()))
+
 func main() {
+	rng.Seed(time.Now().UnixNano())
 	// Set up Server
 	mux := http.NewServeMux()
+	mux.HandleFunc("/api/characters", api.GetCharactersHandler)
+	mux.HandleFunc("/api/battle", api.BattleHandler)
 	// Apply CORS middleware
 	handler := router.CORSMiddleware(mux)
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: handler,
 	}
-	mux.HandleFunc("/api/characters", api.GetCharactersHandler)
 	println("Server Running...")
 	go server.ListenAndServe()
 
