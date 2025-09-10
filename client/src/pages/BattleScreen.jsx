@@ -200,14 +200,14 @@ export default function BattleScreen() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => startBattle()}
-            disabled={loading || !fighter1 || !fighter2}
+            disabled={loading || playing || !fighter1 || !fighter2}
             style={{ padding: '0.5rem 1rem', borderRadius: 8 }}
           >
             Rematch
           </button>
           <button
             onClick={nextOpponent}
-            disabled={loading || !fighter1 || chars.length < 2}
+            disabled={loading || playing || !fighter1 || chars.length < 2}
             style={{ padding: '0.5rem 1rem', borderRadius: 8 }}
           >
             Next Opponent
