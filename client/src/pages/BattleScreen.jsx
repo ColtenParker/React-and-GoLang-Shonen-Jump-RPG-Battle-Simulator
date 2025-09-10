@@ -165,7 +165,7 @@ export default function BattleScreen() {
       <div style={{ display: 'grid', gap: 8, justifyItems: 'center', marginBottom: 12 }}>
         <button
           onClick={() => startBattle()}
-          disabled={loading || !fighter1 || !fighter2}
+          disabled={loading || playing || !fighter1 || !fighter2}
           style={{
             justifySelf: 'center',
             padding: '0.75rem 2rem',
@@ -179,7 +179,7 @@ export default function BattleScreen() {
             background: loading
               ? 'linear-gradient(145deg, #7f8c8d, #95a5a6)'
               : 'linear-gradient(145deg, #e74c3c, #c0392b)',
-            cursor: loading || !fighter1 || !fighter2 ? 'not-allowed' : 'pointer',
+            cursor: loading || playing || !fighter1 || !fighter2 ? 'not-allowed' : 'pointer',
             boxShadow: loading ? 'none' : '0 6px #000, 0 0 10px rgba(231,76,60,0.75)',
             transition: 'transform 0.15s ease, box-shadow 0.15s ease',
           }}
@@ -194,7 +194,7 @@ export default function BattleScreen() {
               '0 6px #000, 0 0 10px rgba(231,76,60,0.75)';
           }}
         >
-          {playing ? 'Battling...' : 'FIGHT!!!'}
+          {loading || playing ? 'Battling...' : 'FIGHT!!!'}
         </button>
 
         <div style={{ display: 'flex', gap: 8 }}>
