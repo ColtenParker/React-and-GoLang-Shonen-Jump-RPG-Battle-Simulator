@@ -68,30 +68,30 @@ export default function CharacterCard({
       )}
 
       {/* Sprite area */}
-      <div
-        style={{
-          width: '100%',
-          height: 200,
-          display: 'grid',
-          placeItems: 'center',
-          overflow: 'visible',
-          position: 'relative',
-        }}
-      >
-        <img
-          src={spriteSheet}
-          alt={`${name} sprite`}
+        <div
           style={{
-            maxWidth: '100%',
-            maxHeight: '100%',
-            width: 'auto',
-            height: 'auto',
-            objectFit: 'contain',
-            transform: isAttacking ? `translateX(${lungeOffset}px) scale(1.03)` : 'translateX(0) scale(1)',
-            transition: 'transform 220ms ease',
-            imageRendering: 'auto',
+            position: 'relative',
+            display: 'inline-block',
+            transform: isAttacking ? `translateX(${lungeOffset}px)` : 'none',
+            transition: 'transform 250ms ease',
           }}
-        />
+        >
+          <img src={spriteSheet} alt={`${name} sprite`} />
+          <span
+            style={{
+              position: 'absolute',
+              bottom: 4,
+              right: 4,
+              background: '#000c',
+              color: '#fff',
+              padding: '2px 6px',
+              borderRadius: 4,
+              fontSize: '0.75rem',
+            }}
+          >
+            {element}
+          </span>
+
 
         {/* Damage overlay only when explicitly used (battle) */}
         {showHpBar && damageOverlay && (
@@ -154,6 +154,8 @@ export default function CharacterCard({
           </div>
         )}
       </div>
+
+      
 
       {/* Basic Info */}
       <h2 style={{ margin: '0.5rem 0' }}>{name}</h2>

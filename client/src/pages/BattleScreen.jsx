@@ -199,6 +199,13 @@ export default function BattleScreen() {
           charsById={charsById}
         />
       )}
+
+      {!playing && result && (
+      <div style={{marginTop:'1rem'}}>
+        <h3>Winner: {result.winnerId}</h3>
+        <button onClick={submit}>Rematch</button>
+      </div>
+)}
     </div>
   );
 }
