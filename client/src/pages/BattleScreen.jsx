@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import CharacterCard from '../components/CharacterCard';
+import TurnLog from '../components/TurnLog';
+
 
 export default function BattleScreen() {
   const location = useLocation();
@@ -118,6 +120,13 @@ export default function BattleScreen() {
   const isWinner1 = winnerId && fighter1 && winnerId === fighter1.id;
   const isWinner2 = winnerId && fighter2 && winnerId === fighter2.id;
 
+  const charsById = React.useMemo(() => {
+    const m = {};
+    chars.forEach(c => { m[c.id] = c; });
+    return m;
+  }, [chars]);
+
+
   return (
     <div style={{ textAlign: 'center' }}>
       <h2>Battle Simulator</h2>
@@ -125,8 +134,8 @@ export default function BattleScreen() {
       {error && <div style={{ color: 'red' }}>{error}</div>}
 
       <button
-        type="submit"
-        disabled={loading || !p1 || !p2 || p1===p2}
+        onClick={startBattle}
+        disabled={loading || !fighter1 || !fighter2}
         style={{
           justifySelf: 'center',
           padding: '0.75rem 2rem',
@@ -138,15 +147,14 @@ export default function BattleScreen() {
           border: '3px solid #000',
           color: '#fff',
           background: loading
-            ? 'linear-gradient(145deg, #7f8c8d, #95a5a6)' // greyed when loading
-            : 'linear-gradient(145deg, #e74c3c, #c0392b)', // red fire button
-          cursor: loading || !p1 || !p2 || p1===p2 ? 'not-allowed' : 'pointer',
-          boxShadow: loading
-            ? 'none'
-            : '0 6px #000, 0 0 10px rgba(231,76,60,0.75)',
+            ? 'linear-gradient(145deg, #7f8c8d, #95a5a6)'
+            : 'linear-gradient(145deg, #e74c3c, #c0392b)',
+          cursor: loading || !fighter1 || !fighter2 ? 'not-allowed' : 'pointer',
+          boxShadow: loading ? 'none' : '0 6px #000, 0 0 10px rgba(231,76,60,0.75)',
           transition: 'transform 0.15s ease, box-shadow 0.15s ease',
         }}
         onMouseDown={e => {
+          if (loading || !fighter1 || !fighter2) return;
           e.currentTarget.style.transform = 'scale(0.95)';
           e.currentTarget.style.boxShadow = '0 3px #000';
         }}
@@ -158,6 +166,7 @@ export default function BattleScreen() {
       >
         {loading ? 'Battling...' : 'Start Battle'}
       </button>
+
 
 
       {/* Fighters */}
@@ -209,9 +218,21 @@ export default function BattleScreen() {
           )}
         </div>
       </div>
+      
+      {result && (
+        <TurnLog
+          turns={result.turns}
+          currentIndex={Math.min(turnIndex, (result.turns?.length || 1) - 1)}
+          charsById={charsById}
+        />
+      )}
 
       {!playing && result && (
-        <h3 style={{ marginTop: '1rem' }}>Winner: {result.winnerId}</h3>
+        <h3 style={{ marginTop: '1rem' }}>
+          Winner: {
+            chars.find(c => c.id === result.winnerId)?.name || result.winnerId
+          }
+        </h3>
       )}
     </div>
   );

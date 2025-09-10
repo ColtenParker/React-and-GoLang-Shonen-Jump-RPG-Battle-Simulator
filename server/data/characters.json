@@ -1,7 +1,7 @@
 [
   {
     "id": "ocean_raider",
-    "name": "Ocean Raider",
+    "name": "Luffy",
     "element": "Aqua",
     "role": "HP",
     "hp": 1700,
@@ -14,7 +14,7 @@
   },
   {
     "id": "blade_tamer",
-    "name": "Blade Tamer",
+    "name": "Zoro",
     "element": "Shadow",
     "role": "Attacker",
     "hp": 1050,
@@ -27,7 +27,7 @@
   },
   {
     "id": "sniper_ghost",
-    "name": "Sniper Ghost",
+    "name": "Usopp",
     "element": "Nature",
     "role": "Attacker",
     "hp": 1000,
@@ -40,7 +40,7 @@
   },
   {
     "id": "navigator_storm",
-    "name": "Navigator Storm",
+    "name": "Nami",
     "element": "Nature",
     "role": "Control",
     "hp": 1000,
@@ -53,7 +53,7 @@
   },
   {
     "id": "ironchef",
-    "name": "Ironchef",
+    "name": "Sanji",
     "element": "Blaze",
     "role": "Support",
     "hp": 1120,
@@ -66,7 +66,7 @@
   },
   {
     "id": "medic_blossom",
-    "name": "Medic Blossom",
+    "name": "Chopper",
     "element": "Nature",
     "role": "Support",
     "hp": 1100,
@@ -79,7 +79,7 @@
   },
   {
     "id": "cyber_brute",
-    "name": "Cyber Brute",
+    "name": "Franky",
     "element": "Aqua",
     "role": "Defense",
     "hp": 1500,
@@ -92,7 +92,7 @@
   },
   {
     "id": "phantom_gear",
-    "name": "Phantom Gear",
+    "name": "Robin",
     "element": "Shadow",
     "role": "Control",
     "hp": 980,
@@ -105,7 +105,7 @@
   },
   {
     "id": "soul_whisper",
-    "name": "Soul Whisper",
+    "name": "Brook",
     "element": "Spirit",
     "role": "Support",
     "hp": 1080,
@@ -118,7 +118,7 @@
   },
   {
     "id": "tide_guardian",
-    "name": "Tide Guardian",
+    "name": "Jinbei",
     "element": "Aqua",
     "role": "Defense",
     "hp": 1550,
