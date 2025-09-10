@@ -42,6 +42,7 @@ function CharacterList() {
       gap: '1rem',
       gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
       alignItems: 'start',
+      padding: '1rem',
     }}
   >
     {characters.map(c => (
