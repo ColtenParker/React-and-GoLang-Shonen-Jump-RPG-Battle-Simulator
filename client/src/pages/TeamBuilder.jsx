@@ -4,7 +4,7 @@ import CharacterCard from '../components/CharacterCard';
 
 export default function TeamBuilder() {
   const [chars, setChars] = useState([]);
-  const [selected, setSelected] = useState([]); // array of ids
+  const [selected, setSelected] = useState([]); // ids
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -18,7 +18,7 @@ export default function TeamBuilder() {
   const toggle = (id) => {
     setSelected(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id);
-      if (prev.length >= 2) return prev; // cap at 2 for MVP
+      if (prev.length >= 2) return prev;
       return [...prev, id];
     });
   };
@@ -35,7 +35,6 @@ export default function TeamBuilder() {
       <h2>Team Builder (Pick 2)</h2>
       {error && <div style={{color:'red'}}>{error}</div>}
 
-      {/* Selected summary */}
       <div style={{display:'flex', gap:'1rem', marginBottom:'1rem', flexWrap:'wrap'}}>
         {selected.map(id => {
           const c = chars.find(x => x.id === id);
@@ -46,35 +45,30 @@ export default function TeamBuilder() {
             </div>
           );
         })}
-        <button
-          disabled={selected.length !== 2}
-          onClick={startBattle}
-          style={{padding:'0.5rem 1rem'}}
-        >
+        <button type="button" disabled={selected.length !== 2} onClick={startBattle}>
           {selected.length === 2 ? 'Battle!' : 'Pick 2 fighters'}
         </button>
       </div>
 
-      {/* Character grid with selectable cards */}
-        <div className="grid-cards">
-            {chars.map(c => {
-                const isSel = selected.includes(c.id);
-                return (
-                <div key={c.id} className="card-wrap">
-                    <div
-                    className={`card-selectable ${isSel ? 'selected' : ''}`}
-                    onClick={() => toggle(c.id)}
-                    style={{ cursor: 'pointer' }}
-                    >
-                    <CharacterCard character={c} />
-                    </div>
-                    <div style={{textAlign:'center', marginTop:6, fontSize:12, opacity:0.8}}>
-                    {isSel ? 'Selected' : 'Click to select'}
-                    </div>
-                </div>
-                );
-            })}
-        </div>
+      <div className="grid-cards">
+        {chars.map(c => {
+          const isSel = selected.includes(c.id);
+          return (
+            <div key={c.id} className="card-wrap">
+              <div
+                className={`card-selectable ${isSel ? 'selected' : ''}`}
+                onClick={() => toggle(c.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <CharacterCard character={c} />
+              </div>
+              <div style={{textAlign:'center', marginTop:6, fontSize:12, opacity:0.8}}>
+                {isSel ? 'Selected' : 'Click to select'}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,32 +1,54 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import CharacterCard from '../components/CharacterCard';
 
 export default function BattleScreen() {
+  const location = useLocation();
+
   const [chars, setChars] = useState([]);
   const [p1, setP1] = useState('');
   const [p2, setP2] = useState('');
+
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // playback state
   const [hp1, setHp1] = useState(null);
   const [hp2, setHp2] = useState(null);
   const [turnIndex, setTurnIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [attackingId, setAttackingId] = useState(null);
-  const [damageFx, setDamageFx] = useState(null); // { targetId, value, crit }
+  const [damageFx, setDamageFx] = useState(null);
 
   useEffect(() => {
-    const sp = new URLSearchParams(window.location.search);
+    fetch('http://localhost:8080/api/characters')
+      .then(r => { if (!r.ok) throw new Error('Failed to load characters'); return r.json(); })
+      .then(setChars)
+      .catch(e => setError(e.message));
+  }, []);
+
+  useEffect(() => {
+    const sp = new URLSearchParams(location.search);
     const qp1 = sp.get('p1');
     const qp2 = sp.get('p2');
     if (qp1) setP1(qp1);
     if (qp2) setP2(qp2);
-  }, []);
+  }, [location.search]);
 
   const fighter1 = chars.find(c => c.id === p1);
   const fighter2 = chars.find(c => c.id === p2);
+
+
+  useEffect(() => {
+    setPlaying(false);
+    setAttackingId(null);
+    setDamageFx(null);
+    setTurnIndex(0);
+    setResult(null);
+    setHp1(fighter1 ? fighter1.hp : null);
+    setHp2(fighter2 ? fighter2.hp : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p1, p2]);
 
   const submit = (e) => {
     e.preventDefault();
@@ -46,7 +68,6 @@ export default function BattleScreen() {
       .then(r => { if (!r.ok) throw new Error('Battle failed'); return r.json(); })
       .then((res) => {
         setResult(res);
-        // Start HP bars at full client-side for animation
         if (fighter1) setHp1(fighter1.hp);
         if (fighter2) setHp2(fighter2.hp);
         setTurnIndex(0);
@@ -56,7 +77,6 @@ export default function BattleScreen() {
       .finally(() => setLoading(false));
   };
 
-  // Playback: lunge → apply damage (with overlay) → advance. Only show the current turn text.
   useEffect(() => {
     if (!result || !playing || !fighter1 || !fighter2) return;
     if (turnIndex >= result.turns.length) {
@@ -69,48 +89,19 @@ export default function BattleScreen() {
     const current = result.turns[turnIndex];
     setAttackingId(current.attackerId);
 
-    // show damage bubble at application time
     const applyTimer = setTimeout(() => {
-      // set HP after damage
-      if (current.defenderId === fighter1.id) {
-        setHp1(current.defenderHPAfter);
-      } else if (current.defenderId === fighter2.id) {
-        setHp2(current.defenderHPAfter);
-      }
-      // show damage overlay centered on defender
-      setDamageFx({ targetId: current.defenderId, value: current.finalDamage, crit: current.critical });
+      if (current.defenderId === fighter1.id) setHp1(current.defenderHPAfter);
+      else if (current.defenderId === fighter2.id) setHp2(current.defenderHPAfter);
 
-      // hide damage overlay after a short time
+      setDamageFx({ targetId: current.defenderId, value: current.finalDamage, crit: current.critical });
       setTimeout(() => setDamageFx(null), 420);
       setAttackingId(null);
     }, 250);
 
-    const advanceTimer = setTimeout(() => {
-      setTurnIndex(t => t + 1);
-    }, 600);
+    const advanceTimer = setTimeout(() => setTurnIndex(t => t + 1), 600);
 
-    return () => {
-      clearTimeout(applyTimer);
-      clearTimeout(advanceTimer);
-    };
+    return () => { clearTimeout(applyTimer); clearTimeout(advanceTimer); };
   }, [result, playing, turnIndex, fighter1, fighter2]);
-
-  // Reset battle state when either selection changes
-useEffect(() => {
-  // stop any ongoing playback / animations
-  setPlaying(false);
-  setAttackingId(null);
-  setDamageFx(null);
-  setTurnIndex(0);
-
-  // clear result -> removes green winner border
-  setResult(null);
-
-  // reset HP bars to the newly selected fighters (or clear if none)
-  setHp1(fighter1 ? fighter1.hp : null);
-  setHp2(fighter2 ? fighter2.hp : null);
-}, [p1, p2, fighter1, fighter2]);
-
 
   const winnerId = result?.winnerId;
   const isWinner1 = winnerId && fighter1 && winnerId === fighter1.id;
@@ -121,10 +112,10 @@ useEffect(() => {
     : null;
 
   return (
-    <div>
+    <div style={{ textAlign: 'center' }}>
       <h2>Battle Simulator</h2>
 
-      <form onSubmit={submit} style={{display:'grid',gap:'0.5rem',maxWidth:420}}>
+      <form onSubmit={submit} style={{display:'grid',gap:'0.5rem'}}>
         <label>
           Player 1
           <select value={p1} onChange={e=>setP1(e.target.value)} required>
@@ -141,23 +132,27 @@ useEffect(() => {
           </select>
         </label>
 
-        <button type="submit" disabled={loading || !p1 || !p2 || p1===p2}>
+        <button type="submit" disabled={loading || !p1 || !p2 || p1===p2} style={{justifySelf:'center'}}>
           {loading ? 'Battling...' : 'Start Battle'}
         </button>
         {p1===p2 && <small>Pick two different fighters.</small>}
       </form>
 
-      {error && <div style={{color:'red',marginTop:'1rem'}}>Error: {error}</div>}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
 
-      {/* Fighters with HP bars, lunge, and damage overlays */}
-      <div style={{
-        display:'flex',
-        gap:'1rem',
-        marginTop:'1rem',
-        flexWrap:'wrap',
-      }}>
-        {fighter1 && (
-          <div style={{ flex: '0 1 320px' }}>
+      {/* Fighters */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          alignItems: 'center',
+          justifyItems: 'center',
+          gap: '0.75rem',
+          marginTop: '1rem',
+        }}
+      >
+        <div style={{ width: 420, maxWidth: '100%' }}>
+          {fighter1 && (
             <CharacterCard
               character={fighter1}
               showHpBar
@@ -171,10 +166,13 @@ useEffect(() => {
                   : null
               }
             />
-          </div>
-        )}
-        {fighter2 && (
-          <div style={{ flex: '0 1 320px' }}>
+          )}
+        </div>
+
+        <div style={{ fontSize: '2rem', fontWeight: 800, opacity: 0.8 }}>VS</div>
+
+        <div style={{ width: 420, maxWidth: '100%' }}>
+          {fighter2 && (
             <CharacterCard
               character={fighter2}
               showHpBar
@@ -188,12 +186,10 @@ useEffect(() => {
                   : null
               }
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
-      
 
-      {/* Only current-turn text (temporary; can remove later) */}
       {currentTurn && (
         <div style={{marginTop:'1rem'}}>
           <strong>Turn {currentTurn.turnNumber}</strong>: {currentTurn.attackerId} → {currentTurn.defenderId}
@@ -201,7 +197,6 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Final winner */}
       {!playing && result && (
         <h3 style={{marginTop:'1rem'}}>Winner: {result.winnerId}</h3>
       )}
