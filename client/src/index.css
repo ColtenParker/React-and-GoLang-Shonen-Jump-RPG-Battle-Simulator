@@ -18,3 +18,41 @@ code {
   max-width: 320px;
   margin: 0 auto;
 }
+
+* { box-sizing: border-box; }
+
+.character-card {
+  width: 100%;
+  max-width: 100%;
+}
+
+.character-card img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+
+.grid-cards {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-items: start;
+}
+
+
+.card-wrap {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.card-selectable {
+  border-radius: 12px;
+  position: relative;
+}
+
+.card-selectable.selected {
+  outline: 3px solid #27ae60; 
+  outline-offset: 4px;           
+}

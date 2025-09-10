@@ -28,17 +28,19 @@ export default function CharacterCard({
   const lungeOffset = side === 'left' ? 28 : -28;
 
   return (
-    <div
-      className="character-card"
-      style={{
-        border: `2px solid ${isWinner ? '#27ae60' : '#eee'}`,
-        borderRadius: 12,
-        padding: '1rem',
-        width: 300,
-        position: 'relative',
-        background: '#fff',
-      }}
-    >
+      <div
+        className="character-card"
+        style={{
+          border: `2px solid ${isWinner ? '#27ae60' : '#eee'}`,
+          borderRadius: 12,
+          padding: '1rem',
+          width: '100%',          // parent controls width
+          maxWidth: '100%',
+          position: 'relative',
+          background: '#fff',
+          overflow: 'hidden',
+        }}
+      >
       {/* Health bar (only if showHpBar) */}
       {showHpBar && (
         <div style={{ marginBottom: 8 }}>

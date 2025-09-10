@@ -18,10 +18,11 @@ export default function BattleScreen() {
   const [damageFx, setDamageFx] = useState(null); // { targetId, value, crit }
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/characters')
-      .then(r => { if (!r.ok) throw new Error('Failed to load characters'); return r.json(); })
-      .then(setChars)
-      .catch(e => setError(e.message));
+    const sp = new URLSearchParams(window.location.search);
+    const qp1 = sp.get('p1');
+    const qp2 = sp.get('p2');
+    if (qp1) setP1(qp1);
+    if (qp2) setP2(qp2);
   }, []);
 
   const fighter1 = chars.find(c => c.id === p1);

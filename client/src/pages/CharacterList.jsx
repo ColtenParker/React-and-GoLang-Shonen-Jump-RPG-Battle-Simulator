@@ -36,22 +36,14 @@ function CharacterList() {
 
   // return a container that maps characters -> <CharacterCard character={c} />
   return (
-  <div
-    style={{
-      display: 'grid',
-      gap: '1rem',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-      alignItems: 'start',
-      padding: '1rem',
-    }}
-  >
+  <div className="grid-cards">
     {characters.map(c => (
-      <div key={c.id} style={{ maxWidth: 340, width: '100%', margin: '0 auto' }}>
+      <div key={c.id} className="card-wrap">
         <CharacterCard character={c} />
       </div>
     ))}
   </div>
-)
+);
 
 }
 
