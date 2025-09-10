@@ -2,11 +2,12 @@ import React from 'react';
 
 export default function CharacterCard({
   character,
+  showHpBar = false,        // NEW: opt-in HP bar (off by default)
   currentHp,
   isWinner = false,
   isAttacking = false,
   side = 'left',
-  damageOverlay = null, // { value:number, crit:boolean } | null
+  damageOverlay = null,      // used only on battle page
 }) {
   const {
     name,
@@ -35,40 +36,43 @@ export default function CharacterCard({
         padding: '1rem',
         width: 300,
         position: 'relative',
+        background: '#fff',
       }}
     >
-      {/* Health bar */}
-      <div style={{ marginBottom: 8 }}>
-        <div
-          style={{
-            height: 12,
-            background: '#ddd',
-            borderRadius: 6,
-            overflow: 'hidden',
-          }}
-        >
+      {/* Health bar (only if showHpBar) */}
+      {showHpBar && (
+        <div style={{ marginBottom: 8 }}>
           <div
             style={{
-              width: `${pct}%`,
-              height: '100%',
-              transition: 'width 300ms linear',
-              background: pct > 50 ? '#2ecc71' : pct > 25 ? '#f1c40f' : '#e74c3c',
+              height: 12,
+              background: '#ddd',
+              borderRadius: 6,
+              overflow: 'hidden',
             }}
-          />
+          >
+            <div
+              style={{
+                width: `${pct}%`,
+                height: '100%',
+                transition: 'width 300ms linear',
+                background: pct > 50 ? '#2ecc71' : pct > 25 ? '#f1c40f' : '#e74c3c',
+              }}
+            />
+          </div>
+          <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
+            HP: {hpNow} / {maxHp} ({pct}%)
+          </div>
         </div>
-        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
-          HP: {hpNow} / {maxHp} ({pct}%)
-        </div>
-      </div>
+      )}
 
-      {/* Sprite area (no clipping) */}
+      {/* Sprite area */}
       <div
         style={{
           width: '100%',
-          height: 200,            // more room so PNGs aren’t cut off
+          height: 200,
           display: 'grid',
           placeItems: 'center',
-          overflow: 'visible',    // allow lunge to extend out
+          overflow: 'visible',
           position: 'relative',
         }}
       >
@@ -87,68 +91,66 @@ export default function CharacterCard({
           }}
         />
 
-        {/* Damage overlay (centered) */}
-        {damageOverlay && (
-  <div
-    style={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      pointerEvents: 'none',
-      animation: 'damagePop 420ms ease-out',
-      zIndex: 2,
-    }}
-  >
-    {damageOverlay.crit ? (
-      // STARBURST for CRIT
-      <svg
-        width="170"
-        height="120"
-        viewBox="-60 -45 120 90"
-        style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.35))' }}
-      >
-        <polygon
-          points="
-            0,-40 10,-15 35,-28 22,-8 50,0 22,8
-            35,28 10,15 0,40 -10,15 -35,28 -22,8
-            -50,0 -22,-8 -35,-28 -10,-15
-          "
-          fill="#ffeb3b"
-          stroke="#000"
-          strokeWidth="4"
-          strokeLinejoin="round"
-        />
-        <text
-          x="0"
-          y="6"
-          textAnchor="middle"
-          fontWeight="900"
-          fontSize="22"
-          fill="#000"
-          style={{ fontFamily: 'Impact, Haettenschweiler, Arial Black, sans-serif' }}
-        >
-          {`${damageOverlay.value}`}
-        </text>
-      </svg>
-    ) : (
-      // Normal non-crit pill
-      <div
-        style={{
-          padding: '6px 10px',
-          borderRadius: 8,
-          background: 'rgba(0,0,0,0.75)',
-          color: '#fff',
-          fontWeight: 800,
-          fontSize: 18,
-          boxShadow: '0 3px 10px rgba(0,0,0,0.35)',
-        }}
-      >
-        {`-${damageOverlay.value}`}
-      </div>
-    )}
-  </div>
-)}
+        {/* Damage overlay only when explicitly used (battle) */}
+        {showHpBar && damageOverlay && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              pointerEvents: 'none',
+              animation: 'damagePop 420ms ease-out',
+              zIndex: 2,
+            }}
+          >
+            {damageOverlay.crit ? (
+              <svg
+                width="170"
+                height="120"
+                viewBox="-60 -45 120 90"
+                style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.35))' }}
+              >
+                <polygon
+                  points="
+                    0,-40 10,-15 35,-28 22,-8 50,0 22,8
+                    35,28 10,15 0,40 -10,15 -35,28 -22,8
+                    -50,0 -22,-8 -35,-28 -10,-15
+                  "
+                  fill="#ffeb3b"
+                  stroke="#000"
+                  strokeWidth="4"
+                  strokeLinejoin="round"
+                />
+                <text
+                  x="0"
+                  y="6"
+                  textAnchor="middle"
+                  fontWeight="900"
+                  fontSize="22"
+                  fill="#000"
+                  style={{ fontFamily: 'Impact, Haettenschweiler, Arial Black, sans-serif' }}
+                >
+                  {`CRIT ${damageOverlay.value}`}
+                </text>
+              </svg>
+            ) : (
+              <div
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 8,
+                  background: 'rgba(0,0,0,0.75)',
+                  color: '#fff',
+                  fontWeight: 800,
+                  fontSize: 18,
+                  boxShadow: '0 3px 10px rgba(0,0,0,0.35)',
+                }}
+              >
+                {`-${damageOverlay.value}`}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Basic Info */}

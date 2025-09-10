@@ -36,10 +36,21 @@ function CharacterList() {
 
   // return a container that maps characters -> <CharacterCard character={c} />
   return (
-    <div style={{display:'grid',gap:'1rem',gridTemplateColumns:'repeat(auto-fill, minmax(220px, 1fr))'}}>
-        {characters.map(c => <CharacterCard key={c.id} character={c} />)}
-    </div>
-);
+  <div
+    style={{
+      display: 'grid',
+      gap: '1rem',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+      alignItems: 'start',
+    }}
+  >
+    {characters.map(c => (
+      <div key={c.id} style={{ maxWidth: 340, width: '100%', margin: '0 auto' }}>
+        <CharacterCard character={c} />
+      </div>
+    ))}
+  </div>
+)
 
 }
 

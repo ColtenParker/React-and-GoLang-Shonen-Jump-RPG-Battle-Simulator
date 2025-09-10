@@ -149,36 +149,49 @@ useEffect(() => {
       {error && <div style={{color:'red',marginTop:'1rem'}}>Error: {error}</div>}
 
       {/* Fighters with HP bars, lunge, and damage overlays */}
-      <div style={{display:'flex', gap:'1rem', marginTop:'1rem', flexWrap:'wrap'}}>
+      <div style={{
+        display:'flex',
+        gap:'1rem',
+        marginTop:'1rem',
+        flexWrap:'wrap',
+        alignItems:'flex-start',
+        justifyContent:'space-between'
+        }}>
         {fighter1 && (
-          <CharacterCard
-            character={fighter1}
-            currentHp={hp1 ?? fighter1.hp}
-            isWinner={Boolean(isWinner1)}
-            isAttacking={attackingId === fighter1.id}
-            side="left"
-            damageOverlay={
-              damageFx && damageFx.targetId === fighter1.id
-                ? { value: damageFx.value, crit: damageFx.crit }
-                : null
-            }
-          />
+            <div style={{ flex: '0 1 320px' }}>
+            <CharacterCard
+                character={fighter1}
+                showHpBar
+                currentHp={hp1 ?? fighter1.hp}
+                isWinner={Boolean(isWinner1)}
+                isAttacking={attackingId === fighter1.id}
+                side="left"
+                damageOverlay={
+                damageFx && damageFx.targetId === fighter1.id
+                    ? { value: damageFx.value, crit: damageFx.crit }
+                    : null
+                }
+            />
+            </div>
         )}
         {fighter2 && (
-          <CharacterCard
-            character={fighter2}
-            currentHp={hp2 ?? fighter2.hp}
-            isWinner={Boolean(isWinner2)}
-            isAttacking={attackingId === fighter2.id}
-            side="right"
-            damageOverlay={
-              damageFx && damageFx.targetId === fighter2.id
-                ? { value: damageFx.value, crit: damageFx.crit }
-                : null
-            }
-          />
+            <div style={{ flex: '0 1 320px' }}>
+            <CharacterCard
+                character={fighter2}
+                showHpBar
+                currentHp={hp2 ?? fighter2.hp}
+                isWinner={Boolean(isWinner2)}
+                isAttacking={attackingId === fighter2.id}
+                side="right"
+                damageOverlay={
+                damageFx && damageFx.targetId === fighter2.id
+                    ? { value: damageFx.value, crit: damageFx.crit }
+                    : null
+                }
+            />
+            </div>
         )}
-      </div>
+        </div>
       
 
       {/* Only current-turn text (temporary; can remove later) */}

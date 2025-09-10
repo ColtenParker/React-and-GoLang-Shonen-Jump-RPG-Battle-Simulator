@@ -11,3 +11,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.character-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+}
