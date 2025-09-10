@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import CharacterCard from '../components/CharacterCard';
+import TurnLog from '../components/TurnLog';
 
 export default function BattleScreen() {
   const location = useLocation();
@@ -37,6 +38,11 @@ export default function BattleScreen() {
 
   const fighter1 = chars.find(c => c.id === p1);
   const fighter2 = chars.find(c => c.id === p2);
+  const charsById = React.useMemo(() => {
+  const map = {};
+  chars.forEach(c => { map[c.id] = c; });
+  return map;
+}, [chars]);
 
 
   useEffect(() => {
@@ -106,10 +112,6 @@ export default function BattleScreen() {
   const winnerId = result?.winnerId;
   const isWinner1 = winnerId && fighter1 && winnerId === fighter1.id;
   const isWinner2 = winnerId && fighter2 && winnerId === fighter2.id;
-
-  const currentTurn = result && turnIndex < result.turns.length
-    ? result.turns[turnIndex]
-    : null;
 
   return (
     <div style={{ textAlign: 'center' }}>
@@ -190,15 +192,12 @@ export default function BattleScreen() {
         </div>
       </div>
 
-      {currentTurn && (
-        <div style={{marginTop:'1rem'}}>
-          <strong>Turn {currentTurn.turnNumber}</strong>: {currentTurn.attackerId} → {currentTurn.defenderId}
-          {currentTurn.critical ? ' (CRIT)' : ''} • dmg {currentTurn.finalDamage}
-        </div>
-      )}
-
-      {!playing && result && (
-        <h3 style={{marginTop:'1rem'}}>Winner: {result.winnerId}</h3>
+      {result && (
+        <TurnLog
+          turns={result.turns}
+          currentIndex={turnIndex < result.turns.length ? turnIndex : result.turns.length - 1}
+          charsById={charsById}
+        />
       )}
     </div>
   );
