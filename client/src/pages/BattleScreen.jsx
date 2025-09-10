@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import CharacterCard from '../components/CharacterCard';
-import TurnLog from '../components/TurnLog';
 
 export default function BattleScreen() {
   const location = useLocation();
@@ -23,7 +22,10 @@ export default function BattleScreen() {
 
   useEffect(() => {
     fetch('http://localhost:8080/api/characters')
-      .then(r => { if (!r.ok) throw new Error('Failed to load characters'); return r.json(); })
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load characters');
+        return r.json();
+      })
       .then(setChars)
       .catch(e => setError(e.message));
   }, []);
@@ -31,19 +33,22 @@ export default function BattleScreen() {
   useEffect(() => {
     const sp = new URLSearchParams(location.search);
     const qp1 = sp.get('p1');
-    const qp2 = sp.get('p2');
     if (qp1) setP1(qp1);
-    if (qp2) setP2(qp2);
   }, [location.search]);
+
+  // Pick opponent once characters are loaded
+  useEffect(() => {
+    if (chars.length > 0 && p1) {
+      const candidates = chars.filter(c => c.id !== p1);
+      if (candidates.length > 0) {
+        const randomOpponent = candidates[Math.floor(Math.random() * candidates.length)];
+        setP2(randomOpponent.id);
+      }
+    }
+  }, [chars, p1]);
 
   const fighter1 = chars.find(c => c.id === p1);
   const fighter2 = chars.find(c => c.id === p2);
-  const charsById = React.useMemo(() => {
-  const map = {};
-  chars.forEach(c => { map[c.id] = c; });
-  return map;
-}, [chars]);
-
 
   useEffect(() => {
     setPlaying(false);
@@ -53,11 +58,11 @@ export default function BattleScreen() {
     setResult(null);
     setHp1(fighter1 ? fighter1.hp : null);
     setHp2(fighter2 ? fighter2.hp : null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p1, p2]);
+  }, [p1, p2, fighter1, fighter2]);
 
-  const submit = (e) => {
-    e.preventDefault();
+  const startBattle = () => {
+    if (!fighter1 || !fighter2) return;
+
     setError(null);
     setLoading(true);
     setResult(null);
@@ -74,8 +79,8 @@ export default function BattleScreen() {
       .then(r => { if (!r.ok) throw new Error('Battle failed'); return r.json(); })
       .then((res) => {
         setResult(res);
-        if (fighter1) setHp1(fighter1.hp);
-        if (fighter2) setHp2(fighter2.hp);
+        setHp1(fighter1.hp);
+        setHp2(fighter2.hp);
         setTurnIndex(0);
         setPlaying(true);
       })
@@ -117,30 +122,11 @@ export default function BattleScreen() {
     <div style={{ textAlign: 'center' }}>
       <h2>Battle Simulator</h2>
 
-      <form onSubmit={submit} style={{display:'grid',gap:'0.5rem'}}>
-        <label>
-          Player 1
-          <select value={p1} onChange={e=>setP1(e.target.value)} required>
-            <option value="">Select...</option>
-            {chars.map(c => <option key={c.id} value={c.id}>{c.name} ({c.element})</option>)}
-          </select>
-        </label>
-
-        <label>
-          Player 2
-          <select value={p2} onChange={e=>setP2(e.target.value)} required>
-            <option value="">Select...</option>
-            {chars.map(c => <option key={c.id} value={c.id}>{c.name} ({c.element})</option>)}
-          </select>
-        </label>
-
-        <button type="submit" disabled={loading || !p1 || !p2 || p1===p2} style={{justifySelf:'center'}}>
-          {loading ? 'Battling...' : 'Start Battle'}
-        </button>
-        {p1===p2 && <small>Pick two different fighters.</small>}
-      </form>
-
       {error && <div style={{ color: 'red' }}>{error}</div>}
+
+      <button onClick={startBattle} disabled={loading || !p1 || !p2} style={{ margin: '1rem' }}>
+        {loading ? 'Battling...' : 'Start Battle'}
+      </button>
 
       {/* Fighters */}
       <div
@@ -192,20 +178,9 @@ export default function BattleScreen() {
         </div>
       </div>
 
-      {result && (
-        <TurnLog
-          turns={result.turns}
-          currentIndex={turnIndex < result.turns.length ? turnIndex : result.turns.length - 1}
-          charsById={charsById}
-        />
-      )}
-
       {!playing && result && (
-      <div style={{marginTop:'1rem'}}>
-        <h3>Winner: {result.winnerId}</h3>
-        <button onClick={submit}>Rematch</button>
-      </div>
-)}
+        <h3 style={{ marginTop: '1rem' }}>Winner: {result.winnerId}</h3>
+      )}
     </div>
   );
 }
