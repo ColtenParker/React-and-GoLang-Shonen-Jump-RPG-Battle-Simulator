@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import CharacterCard from '../components/CharacterCard';
 import TurnLog from '../components/TurnLog';
 
-
 export default function BattleScreen() {
   const location = useLocation();
 
@@ -38,7 +37,7 @@ export default function BattleScreen() {
     if (qp1) setP1(qp1);
   }, [location.search]);
 
-  // Pick opponent once characters are loaded
+  // initial opponent
   useEffect(() => {
     if (chars.length > 0 && p1) {
       const candidates = chars.filter(c => c.id !== p1);
@@ -62,32 +61,62 @@ export default function BattleScreen() {
     setHp2(fighter2 ? fighter2.hp : null);
   }, [p1, p2, fighter1, fighter2]);
 
-  const startBattle = () => {
-    if (!fighter1 || !fighter2) return;
+  // helper: pick a new opponent id different from current p2
+  const pickRandomOpponentId = () => {
+    const pool = chars.filter(c => c.id !== p1 && c.id !== p2);
+    if (pool.length === 0) {
+      // fallback if only one candidate exists
+      const fallback = chars.filter(c => c.id !== p1);
+      if (fallback.length === 0) return null;
+      return fallback[Math.floor(Math.random() * fallback.length)].id;
+    }
+    return pool[Math.floor(Math.random() * pool.length)].id;
+  };
 
-    setError(null);
-    setLoading(true);
-    setResult(null);
-    setTurnIndex(0);
-    setPlaying(false);
-    setAttackingId(null);
-    setDamageFx(null);
+  // start battle, allow optional override for opponent id + fighter
+  const startBattle = async () => {
+    if (!fighter1 || !fighter2 || loading) return; // guard double clicks
 
-    fetch('http://localhost:8080/api/battle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player1Id: p1, player2Id: p2 })
-    })
-      .then(r => { if (!r.ok) throw new Error('Battle failed'); return r.json(); })
-      .then((res) => {
-        setResult(res);
-        setHp1(fighter1.hp);
-        setHp2(fighter2.hp);
-        setTurnIndex(0);
-        setPlaying(true);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+    try {
+      setError(null);
+      setLoading(true);
+      setResult(null);
+      setTurnIndex(0);
+      setPlaying(false);
+      setAttackingId(null);
+      setDamageFx(null);
+
+      // ensure the "Battling..." render happens
+      await new Promise(r => setTimeout(r, 50));
+
+      const res = await fetch('http://localhost:8080/api/battle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player1Id: fighter1.id, player2Id: fighter2.id }),
+      });
+      if (!res.ok) throw new Error('Battle failed');
+
+      const data = await res.json();
+      setResult(data);
+      setHp1(fighter1.hp);
+      setHp2(fighter2.hp);
+      setTurnIndex(0);
+      setPlaying(true);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // next opponent -> pick new id, set, then immediately start
+  const nextOpponent = () => {
+    const newId = pickRandomOpponentId();
+    if (!newId) return;
+    const newF2 = chars.find(c => c.id === newId);
+    setP2(newId);
+    // kick off battle against the new opponent immediately
+    startBattle(newId, newF2);
   };
 
   useEffect(() => {
@@ -126,48 +155,69 @@ export default function BattleScreen() {
     return m;
   }, [chars]);
 
-
   return (
     <div style={{ textAlign: 'center' }}>
       <h2>Battle Simulator</h2>
 
       {error && <div style={{ color: 'red' }}>{error}</div>}
 
-      <button
-        onClick={startBattle}
-        disabled={loading || !fighter1 || !fighter2}
-        style={{
-          justifySelf: 'center',
-          padding: '0.75rem 2rem',
-          fontSize: '1.25rem',
-          fontWeight: '900',
-          textTransform: 'uppercase',
-          letterSpacing: '2px',
-          borderRadius: '12px',
-          border: '3px solid #000',
-          color: '#fff',
-          background: loading
-            ? 'linear-gradient(145deg, #7f8c8d, #95a5a6)'
-            : 'linear-gradient(145deg, #e74c3c, #c0392b)',
-          cursor: loading || !fighter1 || !fighter2 ? 'not-allowed' : 'pointer',
-          boxShadow: loading ? 'none' : '0 6px #000, 0 0 10px rgba(231,76,60,0.75)',
-          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        }}
-        onMouseDown={e => {
-          if (loading || !fighter1 || !fighter2) return;
-          e.currentTarget.style.transform = 'scale(0.95)';
-          e.currentTarget.style.boxShadow = '0 3px #000';
-        }}
-        onMouseUp={e => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.boxShadow =
-            '0 6px #000, 0 0 10px rgba(231,76,60,0.75)';
-        }}
-      >
-        {loading ? 'Battling...' : 'Start Battle'}
-      </button>
+      {/* Controls */}
+      <div style={{ display: 'grid', gap: 8, justifyItems: 'center', marginBottom: 12 }}>
+        <button
+          onClick={() => startBattle()}
+          disabled={loading || !fighter1 || !fighter2}
+          style={{
+            justifySelf: 'center',
+            padding: '0.75rem 2rem',
+            fontSize: '1.25rem',
+            fontWeight: '900',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            borderRadius: '12px',
+            border: '3px solid #000',
+            color: '#fff',
+            background: loading
+              ? 'linear-gradient(145deg, #7f8c8d, #95a5a6)'
+              : 'linear-gradient(145deg, #e74c3c, #c0392b)',
+            cursor: loading || !fighter1 || !fighter2 ? 'not-allowed' : 'pointer',
+            boxShadow: loading ? 'none' : '0 6px #000, 0 0 10px rgba(231,76,60,0.75)',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          }}
+          onMouseDown={e => {
+            if (loading || !fighter1 || !fighter2) return;
+            e.currentTarget.style.transform = 'scale(0.95)';
+            e.currentTarget.style.boxShadow = '0 3px #000';
+          }}
+          onMouseUp={e => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow =
+              '0 6px #000, 0 0 10px rgba(231,76,60,0.75)';
+          }}
+        >
+          {playing ? 'Battling...' : 'FIGHT!!!'}
+        </button>
 
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => startBattle()}
+            disabled={loading || !fighter1 || !fighter2}
+            style={{ padding: '0.5rem 1rem', borderRadius: 8 }}
+          >
+            Rematch
+          </button>
+          <button
+            onClick={nextOpponent}
+            disabled={loading || !fighter1 || chars.length < 2}
+            style={{ padding: '0.5rem 1rem', borderRadius: 8 }}
+          >
+            Next Opponent
+          </button>
+        </div>
 
+        <div style={{ fontSize: 14, opacity: 0.8 }}>
+          {fighter2 ? <>Opponent: <b>{fighter2.name}</b></> : 'Picking a random opponent…'}
+        </div>
+      </div>
 
       {/* Fighters */}
       <div
@@ -218,15 +268,13 @@ export default function BattleScreen() {
           )}
         </div>
       </div>
-      
+
       {!playing && result && (
         <h3 style={{ marginTop: '1rem' }}>
-          Winner: {
-            chars.find(c => c.id === result.winnerId)?.name || result.winnerId
-          }
+          Winner: {chars.find(c => c.id === result.winnerId)?.name || result.winnerId}
         </h3>
       )}
-
+      
       {result && (
         <TurnLog
           turns={result.turns}
@@ -234,7 +282,6 @@ export default function BattleScreen() {
           charsById={charsById}
         />
       )}
-
     </div>
   );
 }
