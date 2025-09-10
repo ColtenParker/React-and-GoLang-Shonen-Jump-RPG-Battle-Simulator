@@ -46,11 +46,11 @@ function Badge({ children, bg = '#eee', fg = '#333' }) {
 
 export default function TurnLog({ turns, currentIndex, charsById }) {
   const [showAll, setShowAll] = useState(false);
-  const visibleTurns = useMemo(() => {
-    if (showAll) return turns;
-    const start = Math.max(0, currentIndex - 4); // last 5 turns window
-    return turns.slice(start, currentIndex + 1);
-  }, [turns, currentIndex, showAll]);
+    const visibleTurns = useMemo(() => {
+    const src = showAll ? turns : turns.slice(Math.max(0, currentIndex - 4), currentIndex + 1);
+    return [...src].reverse(); // newest first
+    }, [turns, currentIndex, showAll]);
+
 
   return (
     <div style={{
@@ -72,49 +72,56 @@ export default function TurnLog({ turns, currentIndex, charsById }) {
 
       <ul style={{ listStyle: 'none', padding: 0, margin: '0.5rem 0 0' }}>
         {visibleTurns.map((t, i) => {
-          const attacker = charsById[t.attackerId];
-          const defender = charsById[t.defenderId];
-          const isActive = turns.indexOf(t) === currentIndex;
+            // because we reversed, compute the original index for highlighting
+            const originalIndex = turns.findIndex(x =>
+            x.turnNumber === t.turnNumber &&
+            x.attackerId === t.attackerId &&
+            x.defenderId === t.defenderId &&
+            x.finalDamage === t.finalDamage
+            );
+            const isActive = originalIndex === currentIndex;
 
-          const elemColor = attacker ? (elColors[attacker.element] || '#999') : '#999';
+            const attacker = charsById[t.attackerId];
+            const defender = charsById[t.defenderId];
+            const elemColor = attacker ? (elColors[attacker.element] || '#999') : '#999';
 
-          return (
+            return (
             <li key={`${t.turnNumber}-${t.attackerId}-${i}`} style={{
-              padding: '8px 10px',
-              marginBottom: 6,
-              borderRadius: 10,
-              border: isActive ? '2px solid #3498db' : '1px solid #eee',
-              background: isActive ? 'rgba(52,152,219,0.06)' : '#fff',
+                padding: '8px 10px',
+                marginBottom: 6,
+                borderRadius: 10,
+                border: isActive ? '2px solid #3498db' : '1px solid #eee',
+                background: isActive ? 'rgba(52,152,219,0.06)' : '#fff',
             }}>
-              <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' }}>
                 <Badge bg="#ecf0f1" fg="#2c3e50">Turn {t.turnNumber}</Badge>
                 <Badge bg={elemColor} fg="#fff">{attacker?.element || '—'}</Badge>
                 {t.critical && <Badge bg="#f1c40f" fg="#000">CRIT</Badge>}
                 {t.elementMultiplier && t.elementMultiplier !== 1 && (
-                  <Badge bg="#95a5a6" fg="#fff">x{t.elementMultiplier.toFixed(2)}</Badge>
+                    <Badge bg="#95a5a6" fg="#fff">x{t.elementMultiplier.toFixed(2)}</Badge>
                 )}
                 <div style={{ fontWeight: 800 }}>
-                  {attacker?.name || t.attackerId} → {defender?.name || t.defenderId}
+                    {attacker?.name || t.attackerId} → {defender?.name || t.defenderId}
                 </div>
                 <div style={{ marginLeft: 'auto', fontWeight: 900 }}>
-                  Dmg: {t.finalDamage}
+                    Dmg: {t.finalDamage}
                 </div>
-              </div>
-              <div style={{ display:'flex', gap:12, marginTop:6, alignItems:'center', flexWrap:'wrap' }}>
+                </div>
+                <div style={{ display:'flex', gap:12, marginTop:6, alignItems:'center', flexWrap:'wrap' }}>
                 <span style={{ fontSize: 12, opacity: 0.7 }}>Defender HP</span>
                 {defender ? (
-                  <TinyHp current={t.defenderHPAfter} max={defender.hp} />
+                    <TinyHp current={t.defenderHPAfter} max={defender.hp} />
                 ) : (
-                  <span style={{ fontSize:12, opacity:0.7 }}>{t.defenderHPAfter}</span>
+                    <span style={{ fontSize:12, opacity:0.7 }}>{t.defenderHPAfter}</span>
                 )}
                 <span style={{ fontSize: 12, opacity: 0.6 }}>
-                  (Raw {t.rawDamage} vs DEF {t.defenderDefense})
+                    (Raw {t.rawDamage} vs DEF {t.defenderDefense})
                 </span>
-              </div>
+                </div>
             </li>
-          );
+            );
         })}
-      </ul>
+        </ul>
     </div>
   );
 }
