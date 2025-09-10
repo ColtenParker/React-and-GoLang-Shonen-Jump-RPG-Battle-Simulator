@@ -219,6 +219,14 @@ export default function BattleScreen() {
         </div>
       </div>
       
+      {!playing && result && (
+        <h3 style={{ marginTop: '1rem' }}>
+          Winner: {
+            chars.find(c => c.id === result.winnerId)?.name || result.winnerId
+          }
+        </h3>
+      )}
+
       {result && (
         <TurnLog
           turns={result.turns}
@@ -227,13 +235,6 @@ export default function BattleScreen() {
         />
       )}
 
-      {!playing && result && (
-        <h3 style={{ marginTop: '1rem' }}>
-          Winner: {
-            chars.find(c => c.id === result.winnerId)?.name || result.winnerId
-          }
-        </h3>
-      )}
     </div>
   );
 }
