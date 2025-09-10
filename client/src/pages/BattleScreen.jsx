@@ -124,9 +124,41 @@ export default function BattleScreen() {
 
       {error && <div style={{ color: 'red' }}>{error}</div>}
 
-      <button onClick={startBattle} disabled={loading || !p1 || !p2} style={{ margin: '1rem' }}>
+      <button
+        type="submit"
+        disabled={loading || !p1 || !p2 || p1===p2}
+        style={{
+          justifySelf: 'center',
+          padding: '0.75rem 2rem',
+          fontSize: '1.25rem',
+          fontWeight: '900',
+          textTransform: 'uppercase',
+          letterSpacing: '2px',
+          borderRadius: '12px',
+          border: '3px solid #000',
+          color: '#fff',
+          background: loading
+            ? 'linear-gradient(145deg, #7f8c8d, #95a5a6)' // greyed when loading
+            : 'linear-gradient(145deg, #e74c3c, #c0392b)', // red fire button
+          cursor: loading || !p1 || !p2 || p1===p2 ? 'not-allowed' : 'pointer',
+          boxShadow: loading
+            ? 'none'
+            : '0 6px #000, 0 0 10px rgba(231,76,60,0.75)',
+          transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        }}
+        onMouseDown={e => {
+          e.currentTarget.style.transform = 'scale(0.95)';
+          e.currentTarget.style.boxShadow = '0 3px #000';
+        }}
+        onMouseUp={e => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow =
+            '0 6px #000, 0 0 10px rgba(231,76,60,0.75)';
+        }}
+      >
         {loading ? 'Battling...' : 'Start Battle'}
       </button>
+
 
       {/* Fighters */}
       <div
